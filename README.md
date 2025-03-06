@@ -1,6 +1,6 @@
 # Matrix Device Scan
 
-Una herramienta de escaneo de dispositivos con temática Matrix que muestra información detallada del sistema usando HTML, CSS y JavaScript.
+Una herramienta de escaneo de dispositivos con temática Matrix que muestra información detallada del sistema usando HTML.
 
 ## Descripción
 
