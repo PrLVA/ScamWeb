@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Device Info</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            font-family: 'Courier New', monospace;
+            color: #0f0;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #0f0;
+        }
+
+        button {
+            background: none;
+            border: 2px solid #0f0;
+            color: #0f0;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        button:hover {
+            background: #0f0;
+            color: #000;
+            text-shadow: 0 0 5px #0f0;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            padding: 15px;
+            background: rgba(0, 15, 0, 0.8);
+            border: 1px solid #0f0;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            max-height: 70vh;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Efecto Matrix */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    <h1>Matrix Device Scan</h1>
+    <button onclick="getDeviceInfo()">Iniciar Escaneo</button>
+    <div id="output"></div>
+
+    <script>
+        // Efecto Matrix
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = '010101ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0f0';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 50);
+
+        // Función de información del dispositivo
+        async function getDeviceInfo() {
+            let info = "MATRIX DEVICE SCAN\n";
+            info += "=================\n\n";
+
+            info += "SYSTEM CORE:\n";
+            info += `User Agent: ${navigator.userAgent}\n`;
+            info += `Platform: ${navigator.platform}\n`;
+            info += `Language: ${navigator.language || navigator.userLanguage}\n`;
+            info += `Languages: ${navigator.languages.join(', ')}\n`;
+            info += `Cookies: ${navigator.cookieEnabled}\n`;
+            info += `Online: ${navigator.onLine}\n`;
+            info += `Vendor: ${navigator.vendor}\n`;
+            info += `Plugins: ${navigator.plugins.length > 0 ? Array.from(navigator.plugins).map(p => p.name).join(', ') : 'None'}\n`;
+
+            info += "\nDISPLAY MODULE:\n";
+            info += `Resolution: ${screen.width}x${screen.height}\n`;
+            info += `Color Depth: ${screen.colorDepth}\n`;
+            info += `Available: ${screen.availWidth}x${screen.availHeight}\n`;
+            info += `Orientation: ${screen.orientation ? screen.orientation.type : 'N/A'}\n`;
+
+            info += "\nWINDOW INTERFACE:\n";
+            info += `Inner Size: ${window.innerWidth}x${window.innerHeight}\n`;
+            info += `Outer Size: ${window.outerWidth}x${window.outerHeight}\n`;
+            info += `Pixel Ratio: ${window.devicePixelRatio}\n`;
+            info += `Scrollbars: ${window.scrollbars.visible ? 'Visible' : 'Hidden'}\n`;
+
+            try {
+                info += "\nGEO-TRACKING:\n";
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject);
+                });
+                info += `Latitude: ${position.coords.latitude}\n`;
+                info += `Longitude: ${position.coords.longitude}\n`;
+                info += `Altitude: ${position.coords.altitude || 'N/A'}\n`;
+                info += `Accuracy: ${position.coords.accuracy} meters\n`;
+                info += `Speed: ${position.coords.speed || 'N/A'} m/s\n`;
+                info += `Heading: ${position.coords.heading || 'N/A'} degrees\n`;
+            } catch (error) {
+                info += "GEO-TRACKING: Access Denied\n";
+            }
+
+            if (navigator.connection) {
+                info += "\nNETWORK LINK:\n";
+                info += `Type: ${navigator.connection.effectiveType}\n`;
+                info += `Downlink: ${navigator.connection.downlink} Mbps\n`;
+                info += `RTT: ${navigator.connection.rtt} ms\n`;
+                info += `Save Data: ${navigator.connection.saveData}\n`;
+                info += `Net Type: ${navigator.connection.type || 'N/A'}\n`;
+            }
+
+            info += "\nHARDWARE CORE:\n";
+            info += `CPU Cores: ${navigator.hardwareConcurrency || 'N/A'}\n`;
+            info += `Memory: ${navigator.deviceMemory || 'N/A'} GB\n`;
+            info += `Touch: ${'ontouchstart' in window ? 'Yes' : 'No'}\n`;
+            info += `Max Touch Points: ${navigator.maxTouchPoints || 0}\n`;
+
+            if (navigator.getBattery) {
+                try {
+                    const battery = await navigator.getBattery();
+                    info += "\nPOWER SYSTEM:\n";
+                    info += `Level: ${Math.round(battery.level * 100)}%\n`;
+                    info += `Charging: ${battery.charging}\n`;
+                    info += `Charge Time: ${battery.chargingTime || 'N/A'} sec\n`;
+                    info += `Discharge Time: ${battery.dischargingTime || 'N/A'} sec\n`;
+                } catch (error) {
+                    info += "POWER SYSTEM: N/A\n";
+                }
+            }
+
+            info += "\nSENSOR ARRAY:\n";
+            info += `Gyroscope: ${'DeviceOrientationEvent' in window ? 'Active' : 'Inactive'}\n`;
+            info += `Accelerometer: ${'DeviceMotionEvent' in window ? 'Active' : 'Inactive'}\n`;
+
+            info += "\nMEDIA SYSTEM:\n";
+            info += `WebGL: ${!!(window.WebGLRenderingContext) ? 'Yes' : 'No'}\n`;
+            info += `WebGPU: ${navigator.gpu ? 'Yes' : 'No'}\n`;
+            info += `Media Devices: ${navigator.mediaDevices ? 'Available' : 'N/A'}\n`;
+
+            if (navigator.storage) {
+                try {
+                    const estimate = await navigator.storage.estimate();
+                    info += "\nSTORAGE UNIT:\n";
+                    info += `Quota: ${(estimate.quota / 1024 / 1024).toFixed(2)} MB\n`;
+                    info += `Usage: ${(estimate.usage / 1024 / 1024).toFixed(2)} MB\n`;
+                } catch (error) {
+                    info += "STORAGE UNIT: N/A\n";
+                }
+            }
+
+            if (window.performance) {
+                info += "\nPERFORMANCE CORE:\n";
+                info += `Load Time: ${performance.timing.loadEventEnd - performance.timing.navigationStart} ms\n`;
+                info += `Memory: ${performance.memory ? (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2) + ' MB' : 'N/A'}\n`;
+            }
+
+            info += "\nTEMPORAL SYSTEM:\n";
+            info += `Current: ${new Date().toLocaleString()}\n`;
+            info += `Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\n`;
+            info += `UTC Offset: ${new Date().getTimezoneOffset() / -60} hours\n`;
+
+            document.getElementById('output').textContent = info;
+        }
+    </script>
+</body>
+</html>
