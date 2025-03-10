@@ -20,4 +20,7 @@ Matrix Device Scan es una aplicación web que recolecta y muestra información t
 - Interfaz temática cyberpunk
 - Manejo de errores para APIs no disponibles
 
+## 🔗 WEB  
+🔹 [Matrix Device Scan](https://dataeye0.github.io/)  
+
 
